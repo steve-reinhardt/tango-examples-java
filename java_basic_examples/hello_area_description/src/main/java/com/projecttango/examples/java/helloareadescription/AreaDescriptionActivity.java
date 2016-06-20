@@ -59,6 +59,8 @@ public class AreaDescriptionActivity extends Activity implements SetAdfNameDialo
     private double mPreviousPoseTimeStamp;
     private double mTimeToNextUpdate = UPDATE_INTERVAL_MS;
 
+    private double lastLogTimestamp;
+
     private boolean mIsRelocalized;
     private boolean mIsLearningMode;
     private boolean mIsConstantSpaceRelocalize;
@@ -245,9 +247,6 @@ public class AreaDescriptionActivity extends Activity implements SetAdfNameDialo
         // ADF and Start of Service wrt ADF
         ArrayList<TangoCoordinateFramePair> framePairs = new ArrayList<TangoCoordinateFramePair>();
         framePairs.add(new TangoCoordinateFramePair(
-                TangoPoseData.COORDINATE_FRAME_START_OF_SERVICE,
-                TangoPoseData.COORDINATE_FRAME_DEVICE));
-        framePairs.add(new TangoCoordinateFramePair(
                 TangoPoseData.COORDINATE_FRAME_AREA_DESCRIPTION,
                 TangoPoseData.COORDINATE_FRAME_DEVICE));
         framePairs.add(new TangoCoordinateFramePair(
@@ -305,6 +304,8 @@ public class AreaDescriptionActivity extends Activity implements SetAdfNameDialo
                         }
                     });
                 }
+
+                logPose(pose);
             }
 
             @Override
@@ -312,6 +313,33 @@ public class AreaDescriptionActivity extends Activity implements SetAdfNameDialo
                 // We are not using onFrameAvailable for this application.
             }
         });
+    }
+
+    /**
+     * Log the Position and Orientation of the given pose in the Logcat as information.
+     *
+     * @param pose the pose to log.
+     */
+    private void logPose(TangoPoseData pose) {
+        double deltaTime = pose.timestamp - lastLogTimestamp;
+
+        if (deltaTime < 1.0)
+            return;
+
+        lastLogTimestamp = pose.timestamp;
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        float translation[] = pose.getTranslationAsFloats();
+        stringBuilder.append("Position: " +
+                translation[0] + ", " + translation[1] + ", " + translation[2]);
+
+        float orientation[] = pose.getRotationAsFloats();
+        stringBuilder.append(". Orientation: " +
+                orientation[0] + ", " + orientation[1] + ", " +
+                orientation[2] + ", " + orientation[3]);
+
+        Log.i(TAG, pose.toString());
     }
 
     /**
