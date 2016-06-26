@@ -330,16 +330,27 @@ public class AreaDescriptionActivity extends Activity implements SetAdfNameDialo
 
         StringBuilder stringBuilder = new StringBuilder();
 
+        /*
         float translation[] = pose.getTranslationAsFloats();
         stringBuilder.append("Position: " +
                 translation[0] + ", " + translation[1] + ", " + translation[2]);
+        */
 
         float orientation[] = pose.getRotationAsFloats();
         stringBuilder.append(". Orientation: " +
                 orientation[0] + ", " + orientation[1] + ", " +
                 orientation[2] + ", " + orientation[3]);
 
-        Log.i(TAG, pose.toString());
+        float w = (float)pose.rotation[pose.INDEX_ROTATION_W];
+        float x = (float)pose.rotation[pose.INDEX_ROTATION_X];
+        float y = (float)pose.rotation[pose.INDEX_ROTATION_Y];
+        float z = (float)pose.rotation[pose.INDEX_ROTATION_Z];
+
+        float heading = (float)Math.atan2(2.0 * (w*z + x*y), 1.0 - 2.0 * (z*z + y*y));
+        
+        stringBuilder.append(" Heading: " + heading);
+
+        Log.i(TAG, stringBuilder.toString());
     }
 
     /**
